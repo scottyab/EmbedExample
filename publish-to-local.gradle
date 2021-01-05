@@ -1,0 +1,26 @@
+apply plugin: 'maven-publish'
+
+task androidSourcesJar(type: Jar) {
+    archiveClassifier.set('sources')
+    from android.sourceSets.main.java.srcDirs
+}
+
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // This must match a BuildType and given this is aar binary we use the `aar`
+                // build type
+                from components.aar
+                artifact androidSourcesJar
+
+                pom.withXml {
+                    asNode().appendNode('description', project.POM_DESCRIPTION)
+                }
+                groupId project.POM_GROUP_ID
+                artifactId project.POM_ARTIFACT_ID
+                version "${project.POM_VERSION}-SNAPSHOT"
+            }
+        }
+    }
+}
